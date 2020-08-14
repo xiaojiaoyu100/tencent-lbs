@@ -7,15 +7,9 @@ import (
 
 // DistrictResponse 行政区划回复
 type DistrictResponse struct {
-	Status      int               `json:"status"`
-	Message     string            `json:"message"`
+	Meta
 	DataVersion string            `json:"data_version"`
 	Result      [][]*DistrictInfo `json:"result"`
-}
-
-// Success means a valid response.
-func (r *DistrictResponse) Success() bool {
-	return r != nil && r.Status == 0
 }
 
 // DistrictInfo 行政区划信息

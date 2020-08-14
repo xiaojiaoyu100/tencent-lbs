@@ -13,6 +13,7 @@ const (
 	districtList        API = "/ws/district/v1/list"
 	districtGetChildren API = "/ws/district/v1/getchildren"
 	districtSearch      API = "/ws/district/v1/search"
+	ipLocation          API = "/ws/location/v1/ip"
 )
 
 // Full returns the full path.
