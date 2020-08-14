@@ -1,11 +1,21 @@
 package txlbs
 
+import "fmt"
+
 const (
 	base = "https://apis.map.qq.com"
 )
 
+// API represents a relative path
+type API string
+
 const (
-	districtList        = "/ws/district/v1/list"
-	districtGetChildren = "/ws/district/v1/getchildren"
-	districtSearch      = "/ws/district/v1/search"
+	districtList        API = "/ws/district/v1/list"
+	districtGetChildren API = "/ws/district/v1/getchildren"
+	districtSearch      API = "/ws/district/v1/search"
 )
+
+// Full returns the full path.
+func (a API) Full(p string) string {
+	return fmt.Sprintf("%s?%s", a, p)
+}

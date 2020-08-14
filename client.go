@@ -9,7 +9,8 @@ import (
 // Config represents a client configuration.
 type Config struct {
 	// Key for auth
-	Key string
+	Key       string
+	SecretKey string
 }
 
 // Client encapsulates a set of apis.

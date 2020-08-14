@@ -2,6 +2,7 @@ package txlbs
 
 import (
 	"context"
+	"net/url"
 )
 
 // DistrictResponse 行政区划回复
@@ -10,6 +11,11 @@ type DistrictResponse struct {
 	Message     string            `json:"message"`
 	DataVersion string            `json:"data_version"`
 	Result      [][]*DistrictInfo `json:"result"`
+}
+
+// Success means a valid response.
+func (r *DistrictResponse) Success() bool {
+	return r != nil && r.Status == 0
 }
 
 // DistrictInfo 行政区划信息
@@ -27,11 +33,12 @@ type DistrictInfo struct {
 
 // GetDistrictList 获取行政区划信息
 func (c *Client) GetDistrictList(ctx context.Context) (*DistrictResponse, error) {
-	var param struct {
-		Key string `url:"key"`
+	v := url.Values{}
+	v, err := c.signatureQueryParameter(v, string(districtList))
+	if err != nil {
+		return nil, err
 	}
-	param.Key = c.Config.Key
-	r := c.ca.NewRequest().WithPath(districtList).WithQueryParam(&param)
+	r := c.ca.NewRequest().WithPath(districtList.Full(v.Encode()))
 	resp, err := c.ca.Do(ctx, r)
 	if err != nil {
 		return nil, err
@@ -44,17 +51,17 @@ func (c *Client) GetDistrictList(ctx context.Context) (*DistrictResponse, error)
 }
 
 // GetDistrictChildren 根据子级行政区划
+// id: 父级行政区划ID，缺省时则返回最顶级行政区划
 func (c *Client) GetDistrictChildren(ctx context.Context, id string) (*DistrictResponse, error) {
-	var param struct {
-		Key string `url:"key"`
-		// 父级行政区划ID，缺省时则返回最顶级行政区划
-		ID string `url:"id,omitempty"`
-	}
+	v := url.Values{}
 	if id != "" {
-		param.ID = id
+		v.Set("id", id)
 	}
-	param.Key = c.Config.Key
-	r := c.ca.NewRequest().WithPath(districtGetChildren).WithQueryParam(&param)
+	v, err := c.signatureQueryParameter(v, string(districtGetChildren))
+	if err != nil {
+		return nil, err
+	}
+	r := c.ca.NewRequest().WithPath(districtGetChildren.Full(v.Encode()))
 	resp, err := c.ca.Do(ctx, r)
 	if err != nil {
 		return nil, err
@@ -67,19 +74,19 @@ func (c *Client) GetDistrictChildren(ctx context.Context, id string) (*DistrictR
 }
 
 // DistrictSearch 行政区划搜索
+// 搜索关键词：
+// 1.支持输入一个文本关键词
+// 2.支持多个行政区划代码，英文逗号分隔
 func (c *Client) DistrictSearch(ctx context.Context, keyword string) (*DistrictResponse, error) {
-	var param struct {
-		Key string `url:"key"`
-		// 搜索关键词：
-		// 1.支持输入一个文本关键词
-		// 2.支持多个行政区划代码，英文逗号分隔
-		Keyword string `url:"keyword"`
-	}
+	v := url.Values{}
 	if keyword != "" {
-		param.Keyword = keyword
+		v.Set("keyword", keyword)
 	}
-	param.Key = c.Config.Key
-	r := c.ca.NewRequest().WithPath(districtSearch).WithQueryParam(&param)
+	v, err := c.signatureQueryParameter(v, string(districtSearch))
+	if err != nil {
+		return nil, err
+	}
+	r := c.ca.NewRequest().WithPath(districtSearch.Full(v.Encode()))
 	resp, err := c.ca.Do(ctx, r)
 	if err != nil {
 		return nil, err
